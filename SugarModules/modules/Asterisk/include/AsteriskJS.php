@@ -6,7 +6,7 @@
  *
  * Parts of this code are (c) 2006. RustyBrick, Inc.  http://www.rustybrick.com/
  * Parts of this code are (c) 2008 vertico software GmbH
- * Parts of this code are (c) 2009 abcona e. K. Angelo Malaguarnera E-Mail admin@abcona.de
+ * Parts of this code are (c) 2009 abcona e. K. Angelo Malaguarnera E-Mail adminoiabcona.de
  * Parts of this code are (c) 2012 Blake Robertson. http://www.blakerobertson.com
  * http://www.sugarforge.org/projects/yaai/
  *
@@ -27,7 +27,7 @@
  * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301 USA.
  *
- * You can contact KINAMU Business Solutions AG at office@kinamu.com
+ * You can contact KINAMU Business Solutions AG at officeoikinamu.com
  *
  * The interactive user interfaces in modified source and object code versions
  * of this program must display Appropriate Legal Notices, as required under
@@ -47,8 +47,7 @@ class AsteriskJS {
 
     function echoJavaScript() {
         // asterisk hack: include ajax callbacks in every sugar page except ajax requests:
-
-        if ((!isset($_REQUEST['sugar_body_only']) || $_REQUEST['sugar_body_only'] != true) && $_REQUEST['action'] != 'modulelistmenu' &&
+if ((!isset($_REQUEST['sugar_body_only']) || $_REQUEST['sugar_body_only'] != true) && $_REQUEST['action'] != 'modulelistmenu' &&
              $_REQUEST['action'] != "favorites" && $_REQUEST['action'] != 'Popup' && empty($_REQUEST['to_pdf']) &&
             (!empty($_REQUEST['module']) && $_REQUEST['module'] != 'ModuleBuilder') && empty($_REQUEST['to_csv']) && $_REQUEST['action'] != 'Login' &&
             $_REQUEST['module'] != 'Timesheets') {
@@ -61,13 +60,16 @@ class AsteriskJS {
                 $poll_rate = !empty($GLOBALS['sugar_config']['asterisk_listener_poll_rate']) ? $GLOBALS['sugar_config']['asterisk_listener_poll_rate'] : "10000";
                 $user_extension = !empty($GLOBALS['current_user']->asterisk_ext_c) ? $GLOBALS['current_user']->asterisk_ext_c : "Not Configured!";
                 $current_user_id = $GLOBALS['current_user']->id;
-                $fop_user = $GLOBALS['current_user']->asterisk_fop_user_c;
-                $fop_pass = $GLOBALS['current_user']->asterisk_fop_pass_c;
-                $fop_url = "";
-                if( !empty($GLOBALS['sugar_config']['asterisk_fop_url'])) {
-                    $fop_url = $GLOBALS['sugar_config']['asterisk_fop_url'];
-                }
-                $fop_enabled = !empty($fop_url) ? 1 : 0;
+               
+		// There is no FOP instaled and I guess FOP does not exist anymore
+
+		//$fop_user = $GLOBALS['current_user']->asterisk_fop_user_c;
+                //$fop_pass = $GLOBALS['current_user']->asterisk_fop_pass_c;
+                //$fop_url = "";
+                //if( !empty($GLOBALS['sugar_config']['asterisk_fop_url'])) {
+                //    $fop_url = $GLOBALS['sugar_config']['asterisk_fop_url'];
+                //}
+                //$fop_enabled = !empty($fop_url) ? 1 : 0;
 
                 //JS Global Variables
                 echo '<script type="text/javascript">window.callinize_dev = ' . $GLOBALS['sugar_config']['asterisk_callinize_dev'] . ';</script>';
@@ -75,10 +77,10 @@ class AsteriskJS {
                 echo '<script type="text/javascript">window.callinize_poll_rate = ' . $poll_rate . ';</script>';
                 echo '<script type="text/javascript">window.callinize_user_extension = ' . "'$user_extension'" . ';</script>';
                 echo '<script type="text/javascript">window.callinize_current_user_id = ' . "'$current_user_id'" . ';</script>';
-                echo '<script type="text/javascript">window.callinize_fop_user = "' . $fop_user . '";</script>';
-                echo '<script type="text/javascript">window.callinize_fop_pass = "' . $fop_pass . '";</script>';
-                echo '<script type="text/javascript">window.callinize_fop_url= "' . $fop_url . '";</script>';
-                echo '<script type="text/javascript">window.callinize_fop_enabled= ' . $fop_enabled . ';</script>';
+                //echo '<script type="text/javascript">window.callinize_fop_user = "' . $fop_user . '";</script>';
+                //echo '<script type="text/javascript">window.callinize_fop_pass = "' . $fop_pass . '";</script>';
+                //echo '<script type="text/javascript">window.callinize_fop_url= "' . $fop_url . '";</script>';
+                //echo '<script type="text/javascript">window.callinize_fop_enabled= ' . $fop_enabled . ';</script>';
                 echo '<script type="text/javascript">window.callinize_show_transfer_button= ' . getConfigBool('asterisk_transfer_button_enabled',0) . ';</script>';
                 echo '<script type="text/javascript">window.callinize_relate_to_account_enabled = ' . getConfigBool('asterisk_relate_to_account_enabled',0) . ';</script>';
                 echo '<script type="text/javascript">window.callinize_relate_to_contact_enabled = ' . getConfigBool('asterisk_relate_to_contact_enabled',0) . ';</script>';

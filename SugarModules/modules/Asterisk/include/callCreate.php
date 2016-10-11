@@ -69,7 +69,7 @@ $context = $sugar_config['asterisk_context'];
 //session_start(); 
 //$cUser = new User();
 //$cUser->retrieve($_SESSION['authenticated_user_id']);
-//$extension 	= $cUser->asterisk_ext_c;
+//$extension  = $cUser->asterisk_ext_c;
 
 
 // Use first extension in the list when multiple extensions linked to the account.
@@ -98,55 +98,55 @@ echo "Originate Params: Number: $number, Channel: $channel, Context: $context, E
 
 $socket = fsockopen($server, $port, $errno, $errstr, 20);
 
-	if (!$socket) {
-		echo "errstr ($errno) <br>\n";
+if (!$socket) {
+  echo "errstr ($errno) <br>\n";
 
-	} else {
+} else {
 
-//    $result = ReadResponse($socket);
-//    echo "AMI Header: " . $result;
+  //    $result = ReadResponse($socket);
+  //    echo "AMI Header: " . $result;
 
-	// log on to Asterisk
-	fputs($socket, "Action: Login\r\n");
-	fputs($socket, $Username);
-	fputs($socket, $Secret);
-    fputs($socket, "Events: off\r\n");
-	fputs($socket, "\r\n");
-	$result = ReadResponse($socket);
-	echo("Login Response: " . $result . "\n");
+  // log on to Asterisk
+  fputs($socket, "Action: Login\r\n");
+  fputs($socket, $Username);
+  fputs($socket, $Secret);
+  fputs($socket, "Events: off\r\n");
+  fputs($socket, "\r\n");
+  $result = ReadResponse($socket);
+  echo("Login Response: " . $result . "\n");
 
 
-	// dial number
-	fputs($socket, "Action: originate\r\n");
-	fputs($socket, "Channel: ". $channel ."\r\n");
-	fputs($socket, "Context: ". $context ."\r\n");
-	fputs($socket, "Exten: " . $number . "\r\n");
-	fputs($socket, "Priority: 1\r\n");
-	fputs($socket, "Callerid:" . $_REQUEST['phoneNr'] ."\r\n");
-    fputs($socket, "Account: CLICKTODIAL-" .  formatPhoneNumberToE164($_REQUEST['phoneNr']) . "-" . $_REQUEST['module'] . "-" . $_REQUEST['contactId'] . "\r\n");
-	fputs($socket, "Variable: CALLERID(number)=" . $extension . "\r\n\r\n");
+  // dial number
+  fputs($socket, "Action: originate\r\n");
+  fputs($socket, "Channel: ". $channel ."\r\n");
+  fputs($socket, "Context: ". $context ."\r\n");
+  fputs($socket, "Exten: " . $number . "\r\n");
+  fputs($socket, "Priority: 1\r\n");
+  fputs($socket, "Callerid:" . $_REQUEST['phoneNr'] ."\r\n");
+  fputs($socket, "Account: CLICKTODIAL-" .  formatPhoneNumberToE164($_REQUEST['phoneNr']) . "-" . $_REQUEST['module'] . "-" . $_REQUEST['contactId'] . "\r\n");
+  fputs($socket, "Variable: CALLERID(number)=" . $extension . "\r\n\r\n");
 
-    // You will not get an originate response unless you wait for the phone to be answered... so it's impractical to wait.
-    // but, if there is a permission issue it will fail almost immediately with permission denied.
-    $result = ReadResponse($socket, 10000000);
-    echo "Originate Response: " . $result . "\n";
+  // You will not get an originate response unless you wait for the phone to be answered... so it's impractical to wait.
+  // but, if there is a permission issue it will fail almost immediately with permission denied.
+  $result = ReadResponse($socket, 10000000);
+  echo "Originate Response: " . $result . "\n";
 
-	fputs($socket, "Action: Logoff\r\n\r\n");
-	fputs($socket, "\r\n");
+  fputs($socket, "Action: Logoff\r\n\r\n");
+  fputs($socket, "\r\n");
 
-	$result = ReadResponse($socket);
-	echo("Logout Response: " . $result);
+  $result = ReadResponse($socket);
+  echo("Logout Response: " . $result);
 
-    gitimg_log("click-to-dial");
+  gitimg_log("click-to-dial");
 
-	//var_dump($result);
-	//var_dump($channel);
-	//var_dump($context);
-	//var_dump($number);
-	//sleep(1);
+  //var_dump($result);
+  //var_dump($channel);
+  //var_dump($context);
+  //var_dump($number);
+  //sleep(1);
 
-	// close socket
-	fclose($socket);
+  // close socket
+  fclose($socket);
 }
 
 
@@ -159,22 +159,22 @@ $socket = fsockopen($server, $port, $errno, $errstr, 20);
  * @return array Array of socket responses
  */
 function ReadResponse($socket, $timeout = 500000) {
-    $retVal = '';
+  $retVal = '';
 
-    // Sets timeout to 1 1/2 a second
-    /*
+  // Sets timeout to 1 1/2 a second
+  /*
 
-    $chars = 15;
-    while(($buffer = stream_get_line($socket)) !== false) {
-        $retVal .= $buffer;
-    }
-    */
-    stream_set_timeout($socket, 0, $timeout);
-    while (($buffer = fgets($socket, 20)) !== false) {
-        $retVal .= $buffer;
-    }
+     $chars = 15;
+     while(($buffer = stream_get_line($socket)) !== false) {
+     $retVal .= $buffer;
+     }
+   */
+  stream_set_timeout($socket, 0, $timeout);
+  while (($buffer = fgets($socket, 20)) !== false) {
+    $retVal .= $buffer;
+  }
 
-    return $retVal;
+  return $retVal;
 }
 
 /**
@@ -191,21 +191,21 @@ function printr($data, $exit = TRUE) {
   }
   //if ($exit) {
   //  exit;
- // }
- }
+  // }
+}
 
 function logLine($str)
 {
-   // print($str);
+  // print($str);
 
-	// if logging is enabled.
-	if( !empty($sugar_config['asterisk_log_file']) )
-	{
-		$myFile = $sugar_config['asterisk_log_file']; // Might be a performance issue being here...
-		$fh = fopen($myFile, 'a') or die("can't open file");
-		fwrite($fh, $str);
-		fclose($fh);
-	}
+  // if logging is enabled.
+  if( !empty($sugar_config['asterisk_log_file']) )
+  {
+    $myFile = $sugar_config['asterisk_log_file']; // Might be a performance issue being here...
+    $fh = fopen($myFile, 'a') or die("can't open file");
+    fwrite($fh, $str);
+    fclose($fh);
+  }
 }
 
 /**
@@ -213,14 +213,14 @@ function logLine($str)
  * Note: One limitation of this approach is it will not work if server does any URL rewriting
  */
 function gitimg_log($event) {
-    $host = "gitimg.com";
-    $path = "/rs/track/blak3r/yaai-stats/$event/increment";
-    $fp = fsockopen($host,80, $errno, $errstr, 30);
-    $out = "GET " . $path . " HTTP/1.1\r\n";
-    $out.= "Host: " . $host . "\r\n";
-    $out.= "Connection: Close\r\n\r\n";
-    fwrite($fp, $out);
-    fclose($fp);
+  $host = "gitimg.com";
+  $path = "/rs/track/blak3r/yaai-stats/$event/increment";
+  $fp = fsockopen($host,80, $errno, $errstr, 30);
+  $out = "GET " . $path . " HTTP/1.1\r\n";
+  $out.= "Host: " . $host . "\r\n";
+  $out.= "Connection: Close\r\n\r\n";
+  fwrite($fp, $out);
+  fclose($fp);
 }
 
 /**
@@ -231,28 +231,28 @@ function gitimg_log($event) {
  */
 function formatPhoneNumberToE164($number) {
 
-    // get rid of any non (digit, + character)
-    $phone = preg_replace('/[^0-9+]/', '', $number);
+  // get rid of any non (digit, + character)
+  $phone = preg_replace('/[^0-9+]/', '', $number);
 
-    // validate intl 10
-    if (preg_match('/^\+([2-9][0-9]{9})$/', $phone, $matches)) {
-        return "+{$matches[1]}";
-    }
+  // validate intl 10
+  if (preg_match('/^\+([2-9][0-9]{9})$/', $phone, $matches)) {
+    return "+{$matches[1]}";
+  }
 
-    // validate US DID
-    if (preg_match('/^\+?1?([2-9][0-9]{9})$/', $phone, $matches)) {
-        return "+1{$matches[1]}";
-    }
+  // validate US DID
+  if (preg_match('/^\+?1?([2-9][0-9]{9})$/', $phone, $matches)) {
+    return "+1{$matches[1]}";
+  }
 
-    // validate INTL DID
-    if (preg_match('/^\+?([2-9][0-9]{8,14})$/', $phone, $matches)) {
-        return "+{$matches[1]}";
-    }
+  // validate INTL DID
+  if (preg_match('/^\+?([2-9][0-9]{8,14})$/', $phone, $matches)) {
+    return "+{$matches[1]}";
+  }
 
-    // premium US DID
-    if (preg_match('/^\+?1?([2-9]11)$/', $phone, $matches)) {
-        return "+1{$matches[1]}";
-    }
+  // premium US DID
+  if (preg_match('/^\+?1?([2-9]11)$/', $phone, $matches)) {
+    return "+1{$matches[1]}";
+  }
 }
 
 ?>

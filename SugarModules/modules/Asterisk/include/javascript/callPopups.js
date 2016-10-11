@@ -70,7 +70,7 @@ var YAAI = {
                     setTimeout('YAAI.checkForNewStates(true)', YAAI.pollRate);
                 }
                 YAAI.log(data);
-                YAAI.log('start render' + Date(Date.now() * 1000));
+                YAAI.log('start render: ' + Date(Date.now() * 1000));
                 if( data != ".") {
                     $.each(data, function(entryIndex, entry){
                         if(YAAI.callStateIsNotFiltered(entry)){

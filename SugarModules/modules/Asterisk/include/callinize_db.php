@@ -9,58 +9,24 @@
  * Implements methods for the database management.
  */
 
-///class callinize_db {
-
-/*
 require_once('modules/Accounts/Account.php');
 require_once('modules/Users/User.php');
 require_once('modules/Calls/Call.php');
 require_once('modules/Leads/Lead.php');
 require_once('modules/Contacts/Contact.php');
-*/
-
 
 // ACTION FUNCTIONS
-
 function memoSave($call_record_id, $sugar_user_id, $phone_number, $description, $direction) {
     $GLOBALS['log']->debug('memoSave' . $phone_number);
     if ($call_record_id) {
         $call = new Call();
-
-        /*
-        if (!empty($contact_id)) {
-            $call->parent_id = $contact_id;
-            $call->parent_type = 'Contacts';
-        }
-        */
-
         $call->retrieve($call_record_id);
         $call->description = $description;
-        //!$name ? $call->name = getMemoName($call, $direction) : $call->name = $_REQUEST["name"];
-        //$GLOBALS['log']->fatal('memoSave' . $phone_number);
         $call->name = getMemoName($call, $direction, $phone_number);
         $call->assigned_user_id = $sugar_user_id;
         $call->save();
-        gitimg_log("notes-saved");
-        // $GLOBALS['log']->fatal('callid_' . $call->id);
     }
 }
-
-/**
- * Performs an async get request (doesn't wait for response)
- * Note: One limitation of this approach is it will not work if server does any URL rewriting
- */
-function gitimg_log($event) {
-    $host = "gitimg.com";
-    $path = "/rs/track/blak3r/yaai-stats/$event/increment";
-    $fp = fsockopen($host,80, $errno, $errstr, 30);
-    $out = "GET " . $path . " HTTP/1.1\r\n";
-    $out.= "Host: " . $host . "\r\n";
-    $out.= "Connection: Close\r\n\r\n";
-    fwrite($fp, $out);
-    fclose($fp);
-}
-
 
 function updateUIState($ui_state, $call_record, $asterisk_id) {
     $cUser = new User();
@@ -85,19 +51,15 @@ function updateUIState($ui_state, $call_record, $asterisk_id) {
 }
 
 function setBeanID($call_record, $bean_module, $bean_id) {
-    //wrapped the entire action to require a call_record - if this is not being passed then there is no point for this action - PJH
     if (is_string($call_record) && is_string($bean_id) ) {
-        // Very basic sanitization
         $bean_id = preg_replace('/[^a-z0-9\-\. ]/i', '', $bean_id);
         $bean_module = preg_replace('/[^a-z0-9\-\. ]/i', '', $bean_module);
         $call_record = preg_replace('/[^a-z0-9\-\. ]/i', '', $call_record);
-        // Workaround See Discussion here: https://github.com/blak3r/yaai/pull/20
         $parent_module = null;
         $parent_id = null;
         $parent_name = null;
         $parent_link = null;
         $bean_link = build_link($bean_module, $bean_id);
-
         $bean_module = strtolower( $bean_module ) ;
         if( $bean_module == 'contacts') {
             $c = new Contact();
@@ -107,8 +69,6 @@ function setBeanID($call_record, $bean_module, $bean_id) {
             $parent_id = $c->account_id;
             $parent_module = "accounts";
             $parent_name = $c->account_name;
-
-            //$GLOBALS["log"]->fatal(print_r($c,true));
         }
         else if( $bean_module == "accounts" ) {
             $a = new Account();
@@ -123,9 +83,6 @@ function setBeanID($call_record, $bean_module, $bean_id) {
         $query = "update asterisk_log set bean_id='{$bean_id}', bean_module='{$bean_module}', bean_name='{$bean_name}', bean_link='{$bean_link}', bean_description='{$bean_description}', "
             . " parent_id='{$parent_id}', parent_module='{$parent_module}', parent_name='{$parent_name}', parent_link='{$parent_link}' "
             . " where call_record_id='{$call_record}'";
-
-//            $GLOBALS['log']->fatal($query);
-
         $GLOBALS['current_user']->db->query($query, false);
         if ($GLOBALS['current_user']->db->checkError()) {
             trigger_error("Update setContactId-Query failed: $query");
@@ -135,8 +92,6 @@ function setBeanID($call_record, $bean_module, $bean_id) {
         $focus->retrieve($call_record);
         $focus->load_relationship('contacts');
         $focus->load_relationship('accounts');
-        // TODO here, find if there is a way to remove all relationships dynamically so we don't need to specify 'contacts', 'accounts' explicitly
-        // Remove any contacts already associated with call (if there are any)
         foreach ($focus->contacts->getBeans() as $contact) {
             $focus->contacts->delete($call_record, $contact->id);
         }
@@ -155,49 +110,8 @@ function setBeanID($call_record, $bean_module, $bean_id) {
                 $focus->accounts->add($bean_id);
                 break;
             }
-
         $focus->save();
     }
-}
-
-function callCreate() {
-    // TODO: For some reason this code isn't working... I think it's getting the extension.
-// For the time being, callCreate is still being used.
-
-    /*
-$cUser = new User();
-$cUser->retrieve($_SESSION['authenticated_user_id']);
-$extension = $cUser->asterisk_ext_c;
-
-//$extension = $current_user->asterisk_ext_c;
-$context = $GLOBALS['sugar_config']['asterisk_context'];
-
-// Take the user supplied pattern, we find the part with the #'s (which are the ext)... then we get something like
-// asterisk_dialout_channel == "SIP/###" --> $matches[1] == SIP/, $matches[2] == "###", $matches[3] is "".
-// asterisk_dialout_channel == "Local/###@sugarsip/n" --> $matches[1] == Local/, $matches[2] == "###", $matches[3] is "@sugarsip/n".
-preg_match('/([^#]*)(#+)([^#]*)/',$GLOBALS['sugar_config']['asterisk_dialout_channel'],$matches);
-$channel = $matches[1] . $extension . $matches[3];
-
-//format Phone Number
-$number = $_REQUEST['phoneNr'];
-$prefix = $GLOBALS['sugar_config']['asterisk_prefix'];
-$number = str_replace("+", "00", $number);
-$number = str_replace(array("(", ")", " ", "-", "/", "."), "", $number);
-$number = $prefix.$number;
-
-
-// dial number
-$cmd = "";
-$cmd .= "Action: originate\r\n";
-$cmd .= "Channel: ". $channel ."\r\n";
-$cmd .= "Context: ". $context ."\r\n";
-$cmd .= "Exten: " . $number . "\r\n";
-$cmd .= "Priority: 1\r\n";
-$cmd .= "Callerid:" . $_REQUEST['phoneNr'] ."\r\n";
-$cmd .= "Variable: CALLERID(number)=" . $extension . "\r\n\r\n";
-
-SendAMICommand($cmd);
-*/
 }
 
 function transferCall($extension, $call_record) {
@@ -219,21 +133,7 @@ function transferCall($extension, $call_record) {
         $cmd = "ACTION: Redirect\r\nChannel: {$row['remote_channel']}\r\nContext: $context\r\nExten: $exten\r\nPriority: 1\r\n\r\n";
         SendAMICommand($cmd);
     }
-
-
-    // Inbound call trying, THIS WORKED!!!
-    // 174-37-247-84*CLI> core show channels concise
-    // SIP/207-00000f5a!from-internal!!1!Up!AppDial!(Outgoing Line)!207!!3!209!Local/207@sugarsip-ca35;2!1333295931.5214
-    // Local/207@sugarsip-ca35;2!sugarsip!207!3!Up!Dial!SIP/207,,t!+14102152497!!3!214!SIP/207-00000f5a!1333295927.5213
-    // Local/207@sugarsip-ca35;1!sugarsip!!1!Up!AppDial!(Outgoing Line)!207!!3!214!SIP/Flowroute-00000f59!1333295927.5212
-    // SIP/Flowroute-00000f59!macro-dial!s!7!Up!Dial!Local/207@sugarsip/n,"",tr!+14102152497!!3!223!Local/207@sugarsip-ca35;1!1333295918.5211
-    //$cmd ="ACTION: Redirect\r\nChannel: SIP/Flowroute-00000f59\r\nContext: from-internal\r\nExten: 208\r\nPriority: 1\r\n\r\n";
-    //SendAMICommand($cmd);
-    // At this point we should also update the channel in database
 }
-
-function blockNumber($number, $description) {
-    }
 
 /**
  * Called by ajax from callPopups.js
@@ -242,18 +142,13 @@ function blockNumber($number, $description) {
  *
  */
 function getCalls($mod_strings, $current_user) {
-    //logLine("  getCalls START", "c:/controller.log");
     $result_set = get_calls_for_current_user($current_user);
-    //logLine("  get_calls() returned", "c:/controller.log");
     $response = build_getCalls_item_list($result_set, $current_user, $mod_strings);
-    //logLine("  build_item_list done... ", "c:/controller.log");
-    // print out json
     $response_array = array();
     if (count($response) == 0) {
         print json_encode(array("."));
     } else {
         foreach ($response as $call) {
-
             $response_array[] = $call;
         }
         print json_encode($response_array);
@@ -261,8 +156,6 @@ function getCalls($mod_strings, $current_user) {
 }
 
 // HELPER FUNCTIONS
-
-
 /**
  * Logs in, Sends the AMI Command Payload passed as a parameter, then logs out.
  * results of the command are "echo"ed and show up in ajax response for debugging.
